@@ -7,57 +7,57 @@ function include (filename) {
 }
 
 /**
- * 设置存储数据的表格
- * TODO: 需要放入表格 ID
+* Set up a table to store data
+ * TODO: Need to be put into the form ID
  */
 const sheet = SpreadsheetApp.openById('Input Sheet ID')
-// 存放剩余次数，表格默认命名为 Data
+// Store remaining times，The table is named by default Data
 const getSheetData = sheet.getSheetByName('Data').getRange('A1')
-// 存放解封结果，表格默认命名为 Result
+// Store unblocking results，The table is named by default Result
 const getResultSheet = sheet.getSheetByName('Result')
 
-// 剩余使用量
+// Remaining usage
 function getUsage () {
   return getSheetData.getValue()
 }
 
-// 解封数量
+// Number of unblocked
 function unblockCount () {
   return getResultSheet.getRange('A:A').getValues().length
 }
 
-// 更新使用量
+// Update usage
 function resetData () {
   getSheetData.setValue(MailApp.getRemainingDailyQuota())
   successfulUnblock()
 }
 
-// 获取成功解封的号码
+// Get successfully unblocked number
 function successfulUnblock () {
   const thread = GmailApp.getInboxThreads()
   const result = []
   for (const mail of thread) {
     const content = mail.getMessages()[0].getBody()
-    // 成功解封的字样
+    // The words successfully unblocked
     if (content.indexOf('removed the ban') > -1) {
-      // 筛选出号码
+      // Filter out numbers
       const phoneNumber = content.replace(/\n|request #.+|<.*?>|. days|[^0-9]/g, '')
       result.push([phoneNumber])
     } // End if
   }
-  // 排除重复
+  // Exclude duplicates
   const newArray = unique(result)
   getResultSheet.getRange(1, 1, newArray.length, 1).setValues(newArray)
 }
 
 /**
- * @description 查询解封状态
- * @param {Array} phoneNumArray - 查询的号码
- * @returns {Array} 查询结果
+ * @description Check unblocking status
+ * @param {Array} phoneNumArray - Query number
+ * @returns {Array} search result
  */
 function queryState (phoneNumArray) {
   const value = getResultSheet.getRange('A:A').getValues()
-  // 设置新数组
+  // Set new array
   const newValue = []
   for (let i = 0; i < value.length; i++) {
     newValue.push(value[i].toString())
@@ -66,19 +66,19 @@ function queryState (phoneNumArray) {
   for (const phoneNumber of phoneNumArray) {
     if (newValue.indexOf(phoneNumber.replace(/[^0-9]/g, '')) > -1) {
       // unbaned
-      result.push([phoneNumber, '已解封'])
+      result.push([phoneNumber, 'Unblocked'])
     } else {
       // still banned
-      result.push([phoneNumber, '未解封'])
+      result.push([phoneNumber, 'Not unblocked'])
     } // End if
   } // End for of
   return result
 }
 
 /**
- * @description 数组排除重复和空值
- * @param {Array} arr - 数组
- * @returns {Array} 新数组
+ * @description Array excludes duplicates and null values
+ * @param {Array} arr - array
+ * @returns {Array} new array
  */
 function unique (arr) {
   const map = {}
@@ -97,40 +97,40 @@ function unique (arr) {
 }
 
 /**
- * @description 随机生成写信的模板
- * @param {string} phone - 写信模版
- * @returns {string} 生成好的模板
+ * @description Randomly generate letter templates
+ * @param {string} phone - letter writing template
+ * @returns {string} Generated template
  */
 function unBlockTemplate (phone) {
-  // TODO: 需要设置写信的模版，并且放入 phone 变量
+  // TODO: Need to set up a template for writing letters，and put in phone variable
   const template = [
   ]
-  // 生成随机数
+  // Generate random numbers
   const index = Math.floor((Math.random() * template.length))
   return template[index]
 }
 
 /**
- * @description 发送邮件
- * @param {string} phoneNumber - 手机号码
- * @returns {string} 完成
+ * @description send email
+ * @param {string} phoneNumber - phone number
+ * @returns {string} Finish
  */
 function sendEmail (phoneNumber) {
-  // 获取剩余次数
+  // Get the remaining times
   let usage = getUsage()
   phoneNumber.forEach(function (phone) {
     usage--
-    // 检测是否达到上限
+    // Check whether the upper limit has been reached
     if (usage === 0) {
-      return '剩余次数已用完'
+      return 'The remaining times have been used up'
     }
     /**
-     * 发送邮件
-     * TODO: 需要设置发送邮件的标题
+     * send email
+     * TODO: Need to set the title of the sent email
      */
     MailApp.sendEmail('support@support.whatsapp.com', 'Input Email Title', unBlockTemplate(phone))
-    // 记录剩余次数
+    // Record remaining times
     getSheetData.setValue(usage)
   })
-  return '提交完成！请耐心等待，请勿重复提交！'
+  return 'Submission completed！Please wait，Please do not resubmit！'
 }
