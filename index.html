@@ -82,7 +82,7 @@
   <div class="contact-form-container">
     <div class="header">
       <h1>
-        WhatsApp 解封提交工具
+        WhatsApp Unblock submission tool
       </h1>
       <div class="info">
         <span id="unblock"></span>
@@ -91,10 +91,10 @@
     </div>
     <div class="contact-form">
       <div class="box">
-        <textarea id="phone" placeholder="请输入 WhatsApp 号码" rows="10"></textarea>
+        <textarea id="phone" placeholder="please enter WhatsApp Number" rows="10"></textarea>
         <div class="info">
-          <button onclick="sendEmail()">发送</button>
-          <button onclick="queryState()">查询</button>
+          <button onclick="sendEmail()">send</button>
+          <button onclick="queryState()">Inquire</button>
         </div>
       </div>
       <div style="padding-top:5px;text-align:center;">
@@ -103,19 +103,19 @@
     </div>
   </div>
   <script>
-    // 初始化
+    // initialization
     function init () {
       google.script.run.withSuccessHandler(function (num) {
-        void(document.getElementById('count').innerText = `剩余使用次数：${num}`)
+        void(document.getElementById('count').innerText = `Number of uses remaining：${num}`)
       }).getUsage()
 
       google.script.run.withSuccessHandler(function (num) {
-        void(document.getElementById('unblock').innerText = `成功解封：${num}`)
+        void(document.getElementById('unblock').innerText = `Successfully unblocked：${num}`)
       }).unblockCount()
     }
     init()
 
-    // 发送邮件
+    // send email
     function sendEmail () {
       const phoneNumber = document.getElementById('phone')
       google.script.run.withSuccessHandler(function (result) {
@@ -124,7 +124,7 @@
       }).sendEmail(phoneNumber.value.match(/.+/g))
     }
 
-    // 查询状态
+    // Query status
     function queryState () {
       const phoneNumber = document.getElementById('phone')
       google.script.run.withSuccessHandler(function (queryResult) {
@@ -132,7 +132,7 @@
         for (const result of queryResult) {
           phoneNumber.value += `${result.join('\t')}\n`
         }
-        alert('查询完成')
+        alert('Query completed')
      }).queryState(phoneNumber.value.match(/.+/g))
     }
   </script>
